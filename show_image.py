@@ -56,7 +56,7 @@ def show_image(im):
     im_label2.image = img
 
 def cl_process():
-##    try:
+    try:
         w,h = im.size
         nim = Image.new('L',im.size)
         lim = im.convert('L')
@@ -75,8 +75,9 @@ def cl_process():
 
         show_image(nim)
         hist_show(nim)
-##    except:
-##        load_image()
+    except:
+         box.showerror("ERROR", "Something go wrong!")
+
 def junhenghua():
     w,h = im.size
     pix_sum = w * h
@@ -211,7 +212,7 @@ def hist_show(im):
 def main():
     root = Tk()
     root.title('Image')
-    root.geometry("1200x650+50+30")
+    root.geometry("1350x680+0+0")
     
     global im_label1
     global im_label2

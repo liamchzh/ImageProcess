@@ -183,6 +183,12 @@ def shuangxianxing():
     show_image(nim)
     hist_show(nim)
 
+def xuanzhuan():
+    lim = im.convert('L')
+    nim = lim.rotate(45)
+    show_image(nim)
+    hist_show(lim)
+
 def hist_process(im):
     hist = []
     for i in range(256):
@@ -253,15 +259,17 @@ def main():
     btn2 = Button(text=u'采样和量化', command=lambda:cl_process())
     btn2.grid(row = 3, column = 1)
     btn3 = Button(text=u'均衡化', command=lambda:junhenghua())
-    btn3.grid(row = 3, column = 2)
+    btn3.grid(row = 2, column = 2)
     btn4 = Button(text=u'线性变换', command=lambda:xianxing())
-    btn4.grid(row = 3, column = 3)
+    btn4.grid(row = 2, column = 3)
     btn5 = Button(text=u'非线性变换', command=lambda:feixianxing())
-    btn5.grid(row = 3, column = 4)
+    btn5.grid(row = 2, column = 4)
     btn6 = Button(text=u'最邻近插值', command=lambda:linjinchazhi())
-    btn6.grid(row = 3, column = 5)
+    btn6.grid(row = 3, column = 2)
     btn7 = Button(text=u'双线性插值', command=lambda:shuangxianxing())
-    btn7.grid(row = 3, column = 6)
+    btn7.grid(row = 3, column = 3)
+    btn8 = Button(text=u'逆时针45度', command=lambda:xuanzhuan())
+    btn8.grid(row = 3, column = 4)
     root.mainloop()
     
 if __name__ == '__main__':

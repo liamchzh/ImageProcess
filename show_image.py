@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from Tkinter import *
 from PIL import ImageTk, Image
-import win32ui
+##import win32ui
 import tkMessageBox as box
+import tkFileDialog
 
 def load_image():
     global im
-    name = get_filename()
+    name = tkFileDialog.askopenfilename(initialdir = 'E:/Python')
     if name != '':
         if is_image(name):
             im = Image.open(name)
@@ -17,12 +18,12 @@ def load_image():
     else:
         box.showerror("ERROR", "please choose a file")
     
-def get_filename():
-    dlg = win32ui.CreateFileDialog(1)
-    dlg.SetOFNInitialDir('C:\Users\liam\Desktop')
-    dlg.DoModal()
-    name = dlg.GetPathName()
-    return name
+##def get_filename():
+##    dlg = win32ui.CreateFileDialog(1)
+##    dlg.SetOFNInitialDir('C:\Users\liam\Desktop')
+##    dlg.DoModal()
+##    name = dlg.GetPathName()
+##    return name
     
 def is_image(filename):
     im = Image.open(filename)

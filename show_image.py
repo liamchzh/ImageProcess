@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+#需预装PIL和OPENCV模块
 from Tkinter import *
 from PIL import ImageTk, Image
-##import win32ui
 import tkMessageBox as box
 import tkFileDialog
+import cv
 
 def load_image():
     global im
+    global name
     name = tkFileDialog.askopenfilename(initialdir = 'E:/Python')
     if name != '':
         if is_image(name):
@@ -17,13 +19,6 @@ def load_image():
             box.showerror("ERROR", "please choose a image file")
     else:
         box.showerror("ERROR", "please choose a file")
-    
-##def get_filename():
-##    dlg = win32ui.CreateFileDialog(1)
-##    dlg.SetOFNInitialDir('C:\Users\liam\Desktop')
-##    dlg.DoModal()
-##    name = dlg.GetPathName()
-##    return name
     
 def is_image(filename):
     im = Image.open(filename)
@@ -215,7 +210,41 @@ def hist_show(im):
     img = ImageTk.PhotoImage(hist_img)
     hist_label2.configure(image = img)
     hist_label2.image = img
-    
+
+def FFT(image, flag = 0):
+    w = image.width
+    h = image.height
+    iTmp = cv.CreateImage((w,h),cv.IPL_DEPTH_32F,1)
+    cv.Convert(image,iTmp)
+    iMat = cv.CreateMat(h,w,cv.CV_32FC2)
+    mFFT = cv.CreateMat(h,w,cv.CV_32FC2)
+    for i in range(h):
+        for j in range(w):
+            if flag == 0:
+                num = -1 if (i+j)%2 == 1 else 1
+            else:
+                num = 1
+            iMat[i,j] = (iTmp[i,j]*num,0)
+    cv.DFT(iMat,mFFT,cv.CV_DXT_FORWARD)
+    return mFFT
+
+def FImage(mat):
+    w = mat.cols
+    h = mat.rows
+    size = (w,h)
+    iAdd = cv.CreateImage(size,cv.IPL_DEPTH_8U,1)
+    for i in range(h):
+        for j in range(w):
+            iAdd[i,j] = mat[i,j][1]/h + mat[i,j][0]/h
+    return iAdd
+
+#傅立叶变换
+def fuliye():
+    image = cv.LoadImage(name,0)
+    mAfterFFT = FFT(image)
+    iAfter = FImage(mAfterFFT)
+    cv.ShowImage('iAfter',iAfter)
+
 def main():
     root = Tk()
     root.title('Image')
@@ -260,7 +289,7 @@ def main():
     btn2 = Button(text=u'采样和量化', command=lambda:cl_process())
     btn2.grid(row = 3, column = 1)
     btn3 = Button(text=u'均衡化', command=lambda:junhenghua())
-    btn3.grid(row = 2, column = 2)
+    btn3.grid(row = 0, column = 2)
     btn4 = Button(text=u'线性变换', command=lambda:xianxing())
     btn4.grid(row = 2, column = 3)
     btn5 = Button(text=u'非线性变换', command=lambda:feixianxing())
@@ -271,6 +300,8 @@ def main():
     btn7.grid(row = 3, column = 3)
     btn8 = Button(text=u'逆时针45度', command=lambda:xuanzhuan())
     btn8.grid(row = 3, column = 4)
+    btn9 = Button(text=u'傅立叶', command=lambda:fuliye())
+    btn9.grid(row = 3, column = 5)
     root.mainloop()
     
 if __name__ == '__main__':

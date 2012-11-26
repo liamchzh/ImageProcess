@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#需预装PIL和OPENCV模块
 from Tkinter import *
 from PIL import ImageTk, Image
 import tkMessageBox as box
@@ -53,6 +52,7 @@ def show_image(im):
     im_label2.configure(image = img)
     im_label2.image = img
 
+#采样和量化处理
 def cl_process():
     try:
         w,h = im.size
@@ -76,6 +76,7 @@ def cl_process():
     except:
          box.showerror("ERROR", "Something go wrong!")
 
+#均衡化处理
 def junhenghua():
     w,h = im.size
     pix_sum = w * h
@@ -119,7 +120,8 @@ def junhenghua():
     show_image(nim)
     hist_show(nim)
 
-def xianxing():
+#线性增强
+def xianxing1():
     w,h = im.size
     nim = Image.new('L', im.size)
     lim = im.convert('L')
@@ -131,6 +133,20 @@ def xianxing():
     show_image(nim)
     hist_show(nim)
 
+#线性减弱
+def xianxing2():
+    w,h = im.size
+    nim = Image.new('L', im.size)
+    lim = im.convert('L')
+    lpix = lim.load()
+    npix = nim.load()
+    for i in range(w):
+        for j in range(h):
+            npix[i, j] = lpix[i, j] * 0.8
+    show_image(nim)
+    hist_show(nim)
+
+#非线性变换
 def feixianxing():
     w,h = im.size
     nim = Image.new('L', im.size)
@@ -144,6 +160,7 @@ def feixianxing():
     show_image(nim)
     hist_show(nim)
 
+#最临近插值法放大1.5倍
 def linjinchazhi():
     w,h = im.size
     nw = int(1.5 * w)
@@ -160,6 +177,7 @@ def linjinchazhi():
     show_image(nim)
     hist_show(nim)
 
+#双线性插值法放大1.5倍
 def shuangxianxing():
     w,h = im.size
     nw = int(1.5 * w)
@@ -181,11 +199,13 @@ def shuangxianxing():
     show_image(nim)
     hist_show(nim)
 
+#旋转45
 def xuanzhuan():
     lim = im.convert('L')
     nim = lim.rotate(45)
     show_image(nim)
     hist_show(lim)
+
 
 def hist_process(im):
     hist = []
@@ -198,7 +218,8 @@ def hist_process(im):
         for j in range(h):
             hist[matrix[i,j]] += 1
     return hist
-            
+
+#显示直方图            
 def hist_show(im):
     hist = hist_process(im)
     maxi = max(hist)
@@ -213,6 +234,7 @@ def hist_show(im):
     hist_label2.configure(image = img)
     hist_label2.image = img
 
+#傅立叶变换
 def FFT(image, flag = 0):
     w = image.width
     h = image.height
@@ -240,7 +262,6 @@ def FImage(mat):
             iAdd[i,j] = mat[i,j][1]/h + mat[i,j][0]/h
     return iAdd
 
-#傅立叶变换
 def fuliye():
     image = cv.LoadImage(name,0)
     mAfterFFT = FFT(image)
@@ -264,6 +285,18 @@ def pinghua1():
     show_image(imgfilted)
     hist_show(imgfilted)
 
+#平滑（加强）
+def pinghua2():
+    imgfilted = im.filter(ImageFilter.SMOOTH_MORE);
+    show_image(imgfilted)
+    hist_show(imgfilted)
+
+#锐化
+def ruihua():
+    imgfilted = im.filter(ImageFilter.SHARPEN);
+    show_image(imgfilted)
+    hist_show(imgfilted)
+    
 def main():
     root = Tk()
     root.title('Image')
@@ -303,29 +336,42 @@ def main():
            orient = HORIZONTAL,
            variable = value_lianghua).grid(row = 2,column = 1)
 
-    btn1 = Button(text=u'打开', command=lambda:load_image())
-    btn1.grid(row = 3, column = 0)
-    btn2 = Button(text=u'采样和量化', command=lambda:cl_process())
-    btn2.grid(row = 3, column = 1)
-    btn3 = Button(text=u'均衡化', command=lambda:junhenghua())
-    btn3.grid(row = 2, column = 2)
-    btn4 = Button(text=u'线性变换', command=lambda:xianxing())
-    btn4.grid(row = 2, column = 3)
-    btn5 = Button(text=u'非线性变换', command=lambda:feixianxing())
-    btn5.grid(row = 2, column = 4)
-    btn6 = Button(text=u'最邻近插值', command=lambda:linjinchazhi())
-    btn6.grid(row = 3, column = 2)
-    btn7 = Button(text=u'双线性插值', command=lambda:shuangxianxing())
-    btn7.grid(row = 3, column = 3)
-    btn8 = Button(text=u'逆时针45度', command=lambda:xuanzhuan())
-    btn8.grid(row = 3, column = 4)
-    btn9 = Button(text=u'傅立叶', command=lambda:fuliye())
-    btn9.grid(row = 3, column = 5)
-    btn10 = Button(text=u'离散余弦', command=lambda:lisanyuxian())
-    btn10.grid(row = 3, column = 6)
-    btn11 = Button(text=u'平滑', command=lambda:pinghua1())
-    btn11.grid(row = 2, column = 6)
-    root.mainloop()
+    btn1 = Button(text=u'采样和量化', command = cl_process)
+    btn1.grid(row = 2, column = 3)
+    menubar = Menu(root)
+
+    filemenu = Menu(menubar, tearoff = 0)
+    filemenu.add_command(label = 'Open', command = lambda:load_image())
+##    filemenu.add_command(label = 'Save', command = lambda:save())
+    menubar.add_cascade(label= 'File', menu = filemenu)
     
+    menu1 = Menu(menubar, tearoff = 0)
+    menu1.add_command(label = '均衡化', command = lambda:junhenghua())
+    menu1.add_command(label = '线性增强', command = lambda:xianxing1())
+    menu1.add_command(label = '线性减弱', command = lambda:xianxing2())
+    menu1.add_command(label = '非线性变换', command = lambda:feixianxing())
+    menubar.add_cascade(label = '点运算', menu = menu1)
+    
+    menu2 = Menu(menubar, tearoff = 0)
+    menu2.add_command(label = '最临近插值', command = lambda:linjinchazhi())
+    menu2.add_command(label = '双线性插值', command = lambda:shuangxianxing())
+    menu2.add_command(label = '逆时针45度', command = lambda:xuanzhuan())
+    menubar.add_cascade(label = '放大及旋转', menu = menu2)
+    
+    menu3 = Menu(menubar, tearoff = 0)
+    menu3.add_command(label = '傅立叶变换', command = lambda:fuliye())
+    menu3.add_command(label = '离散余弦变换',command = lambda:lisanyuxian())
+    menubar.add_cascade(label = '图像变换', menu = menu3)
+
+    menu4 = Menu(menubar, tearoff = 0)
+    menu4.add_command(label = '平滑1', command = lambda:pinghua1())
+    menu4.add_command(label = '平滑2', command = lambda:pinghua2())
+    menu4.add_command(label = '锐化', command = lambda:ruihua())
+    menubar.add_cascade(label = '图像增强', menu = menu4)
+
+    root.config(menu = menubar)
+    root.mainloop()
+
 if __name__ == '__main__':
     main()
+

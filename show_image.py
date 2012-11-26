@@ -4,9 +4,11 @@ from Tkinter import *
 from PIL import ImageTk, Image
 import tkMessageBox as box
 import tkFileDialog
-import cv
+import cv, cv2 
+import numpy as np 
+import ImageFilter
 
-def load_image():
+def load_image(): 
     global im
     global name
     name = tkFileDialog.askopenfilename(initialdir = 'E:/Python')
@@ -243,7 +245,24 @@ def fuliye():
     image = cv.LoadImage(name,0)
     mAfterFFT = FFT(image)
     iAfter = FImage(mAfterFFT)
-    cv.ShowImage('iAfter',iAfter)
+    cv.ShowImage('傅立叶变换',iAfter)
+
+#离散余弦变换
+def lisanyuxian():
+    img1 = cv2.imread(name, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    h, w = img1.shape[:2]
+    vis0 = np.zeros((h,w), np.float32)
+    vis0[:h, :w] = img1
+    vis1 = cv2.dct(vis0)
+    img2 = cv.CreateMat(vis1.shape[0], vis1.shape[1], cv.CV_32FC3)
+    cv.CvtColor(cv.fromarray(vis1), img2, cv.CV_GRAY2BGR)
+    cv.ShowImage('离散余弦变换', img2)
+
+#平滑
+def pinghua1():
+    imgfilted = im.filter(ImageFilter.SMOOTH);
+    show_image(imgfilted)
+    hist_show(imgfilted)
 
 def main():
     root = Tk()
@@ -289,7 +308,7 @@ def main():
     btn2 = Button(text=u'采样和量化', command=lambda:cl_process())
     btn2.grid(row = 3, column = 1)
     btn3 = Button(text=u'均衡化', command=lambda:junhenghua())
-    btn3.grid(row = 0, column = 2)
+    btn3.grid(row = 2, column = 2)
     btn4 = Button(text=u'线性变换', command=lambda:xianxing())
     btn4.grid(row = 2, column = 3)
     btn5 = Button(text=u'非线性变换', command=lambda:feixianxing())
@@ -302,6 +321,10 @@ def main():
     btn8.grid(row = 3, column = 4)
     btn9 = Button(text=u'傅立叶', command=lambda:fuliye())
     btn9.grid(row = 3, column = 5)
+    btn10 = Button(text=u'离散余弦', command=lambda:lisanyuxian())
+    btn10.grid(row = 3, column = 6)
+    btn11 = Button(text=u'平滑', command=lambda:pinghua1())
+    btn11.grid(row = 2, column = 6)
     root.mainloop()
     
 if __name__ == '__main__':

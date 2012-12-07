@@ -60,6 +60,7 @@ def cl_process():
         lim = im.convert('L')
         lpix = lim.load()
         npix = nim.load()
+        print lpix
         caiyang = ['1','2','4','8','16']
         lianghua = ['256','128','64','32','16','8','4','2']
         n=int(caiyang[int(value_caiyang.get())])
@@ -369,7 +370,9 @@ def main():
     menu4.add_command(label = '锐化', command = lambda:ruihua())
     menubar.add_cascade(label = '图像增强', menu = menu4)
 
-    root.config(menu = menubar)
+    root.config(menu = menubar) 
+
+
     root.mainloop()
 
 if __name__ == '__main__':

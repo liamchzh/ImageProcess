@@ -7,6 +7,7 @@ import cv, cv2
 import numpy as np 
 import ImageFilter
 
+hist_height = 150
 def load_image(): 
     global im
     global name
@@ -28,29 +29,51 @@ def is_image(filename):
     else:
         return 0
 
+#显示原图
 def show_pri_image(im):
     img = ImageTk.PhotoImage(im)
     im_label1.configure(image = img)
     im_label1.image = img
 
+#原图直方图
 def pri_hist_show(im):
-    hist = hist_process(im)
-    maxi = max(hist)
-    hist_img = Image.new('L', (256*2, 200))
-    hist_matrix = hist_img.load()
-    for i in range(256):
-        height = (hist[i] * 200) / maxi
-        for j in range(200-height):
-            hist_matrix[i*2, j] = 255
-            hist_matrix[i*2+1, j] = 255
-    img = ImageTk.PhotoImage(hist_img)
+    img = hist_process(im)
     hist_label1.configure(image = img)
     hist_label1.image = img
 
+#显示处理后的图像
 def show_image(im):
     img = ImageTk.PhotoImage(im)
     im_label2.configure(image = img)
     im_label2.image = img
+
+#生成直方图
+def hist_process(im):
+    hist = []
+    for i in range(256):
+        hist.append(0)
+    w,h = im.size
+    im = im.convert('L')
+    matrix = im.load()
+    for i in range(w):
+        for j in range(h):
+            hist[matrix[i,j]] += 1
+    maxi = max(hist)
+    hist_img = Image.new('L', (256*2, hist_height))
+    hist_matrix = hist_img.load()
+    for i in range(256):
+        height = (hist[i] * hist_height) / maxi
+        for j in range(hist_height-height):
+            hist_matrix[i*2, j] = 255
+            hist_matrix[i*2+1, j] = 255
+    img = ImageTk.PhotoImage(hist_img)
+    return img
+
+#显示直方图            
+def hist_show(im):
+    img = hist_process(im)
+    hist_label2.configure(image = img)
+    hist_label2.image = img
 
 #采样和量化处理
 def cl_process():
@@ -203,37 +226,12 @@ def shuangxianxing():
 #旋转45
 def xuanzhuan():
     lim = im.convert('L')
-    nim = lim.rotate(45)
+    nim = im.rotate(45)
     show_image(nim)
     hist_show(lim)
 
 
-def hist_process(im):
-    hist = []
-    for i in range(256):
-        hist.append(0)
-    w,h = im.size
-    im = im.convert('L')
-    matrix = im.load()
-    for i in range(w):
-        for j in range(h):
-            hist[matrix[i,j]] += 1
-    return hist
 
-#显示直方图            
-def hist_show(im):
-    hist = hist_process(im)
-    maxi = max(hist)
-    hist_img = Image.new('L', (256*2, 200))
-    hist_matrix = hist_img.load()
-    for i in range(256):
-        height = (hist[i] * 200) / maxi
-        for j in range(200-height):
-            hist_matrix[i*2, j] = 255
-            hist_matrix[i*2+1, j] = 255
-    img = ImageTk.PhotoImage(hist_img)
-    hist_label2.configure(image = img)
-    hist_label2.image = img
 
 #傅立叶变换
 def FFT(image, flag = 0):
@@ -308,16 +306,16 @@ def main():
     global hist_label1
     global hist_label2
     emp_img = ImageTk.PhotoImage(Image.new('L',(1,1)))
-    im_label1 = Label(root, image = emp_img, width = 512, height = 384, justify = 'left')
+    im_label1 = Label(root, image = emp_img, width = 512, height = 512, justify = 'left')
     im_label1.grid(row = 0, column = 0)
-    im_label2 = Label(root, image = emp_img, width = 512, height = 384, justify = 'right')
+    im_label2 = Label(root, image = emp_img, width = 512, height = 512, justify = 'right')
     im_label2.grid(row = 0, column = 1)
 
     #creat a histogram picture
     hist_img = ImageTk.PhotoImage(Image.new('L',(1,1)))
-    hist_label1 = Label(root, image = hist_img, width = 512, height = 200)
+    hist_label1 = Label(root, image = hist_img, width = 512, height = 150)
     hist_label1.grid(row = 1,column = 0)
-    hist_label2 = Label(root, image = hist_img, width = 512, height = 200)
+    hist_label2 = Label(root, image = hist_img, width = 512, height = 150)
     hist_label2.grid(row = 1,column = 1)
 
     global value_caiyang 
@@ -330,12 +328,12 @@ def main():
            from_ = 0,
            to = 4,
            orient = HORIZONTAL,
-           variable = value_caiyang).grid(row = 2, column = 0)
+           variable = value_caiyang).grid(row = 0, column = 2)
     Scale(root,
            from_ = 0,
            to = 7,
            orient = HORIZONTAL,
-           variable = value_lianghua).grid(row = 2,column = 1)
+           variable = value_lianghua).grid(row = 0,column = 3)
 
     btn1 = Button(text=u'采样和量化', command = cl_process)
     btn1.grid(row = 2, column = 3)

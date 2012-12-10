@@ -8,15 +8,18 @@ import numpy as np
 import ImageFilter
 
 hist_height = 150
+
 def load_image(): 
     global im
     global name
+    global save_im
     name = tkFileDialog.askopenfilename(initialdir = 'E:/Python')
     if name != '':
         if is_image(name):
             im = Image.open(name)
             show_pri_image(im)
             pri_hist_show(im)
+            save_im = im
         else:
             box.showerror("ERROR", "please choose a image file")
     else:
@@ -28,6 +31,10 @@ def is_image(filename):
         return 1
     else:
         return 0
+
+def save():
+    global save_im
+    save_im.save('test.jpg', 'JPEG', quality=100)
 
 #显示原图
 def show_pri_image(im):
@@ -43,6 +50,8 @@ def pri_hist_show(im):
 
 #显示处理后的图像
 def show_image(im):
+    global save_im
+    save_im = im
     img = ImageTk.PhotoImage(im)
     im_label2.configure(image = img)
     im_label2.image = img
@@ -83,7 +92,6 @@ def cl_process():
         lim = im.convert('L')
         lpix = lim.load()
         npix = nim.load()
-        print lpix
         caiyang = ['1','2','4','8','16']
         lianghua = ['256','128','64','32','16','8','4','2']
         n=int(caiyang[int(value_caiyang.get())])
@@ -94,7 +102,6 @@ def cl_process():
         for i in range(w):
             for j in range(h):
                 npix[i, j] = int(npix[i, j] * m / 256) * 256 /(m-1)
-
         show_image(nim)
         hist_show(nim)
     except:
@@ -146,6 +153,7 @@ def junhenghua():
 
 #线性增强
 def xianxing1():
+    multiple = 1.2
     w,h = im.size
     nim = Image.new('L', im.size)
     lim = im.convert('L')
@@ -153,12 +161,13 @@ def xianxing1():
     npix = nim.load()
     for i in range(w):
         for j in range(h):
-            npix[i, j] = lpix[i, j] * 1.2
+            npix[i, j] = lpix[i, j] * multiple
     show_image(nim)
     hist_show(nim)
 
 #线性减弱
 def xianxing2():
+    multiple = 0.8
     w,h = im.size
     nim = Image.new('L', im.size)
     lim = im.convert('L')
@@ -166,7 +175,7 @@ def xianxing2():
     npix = nim.load()
     for i in range(w):
         for j in range(h):
-            npix[i, j] = lpix[i, j] * 0.8
+            npix[i, j] = lpix[i, j] *  multiple
     show_image(nim)
     hist_show(nim)
 
@@ -186,34 +195,36 @@ def feixianxing():
 
 #最临近插值法放大1.5倍
 def linjinchazhi():
+    multiple = 1.5
     w,h = im.size
-    nw = int(1.5 * w)
-    nh = int(1.5 * h)
+    nw = int(multiple * w)
+    nh = int(multiple * h)
     nim = Image.new('L', (nw, nh))
     lim = im.convert('L')
     lpix = lim.load()
     npix = nim.load()
     for i in range(nw):
         for j in range(nh):
-            x = int(i*2/3)
-            y = int(j*2/3)
+            x = int(i/multiple)
+            y = int(j/multiple)
             npix[i, j] = lpix[x, y]
     show_image(nim)
     hist_show(nim)
 
 #双线性插值法放大1.5倍
 def shuangxianxing():
+    multiple = 1.5
     w,h = im.size
-    nw = int(1.5 * w)
-    nh = int(1.5 * h)
+    nw = int(multiple * w)
+    nh = int(multiple * h)
     nim = Image.new('L', (nw, nh))
     lim = im.convert('L')
     lpix = lim.load()
     npix = nim.load()
     for i in range(nw):
         for j in range(nh):
-            x = float(i)*2/3
-            y = float(j)*2/3
+            x = float(i)/multiple
+            y = float(j)/multiple
             u = x - int(x)
             v = y - int(y)
             if int(x) == w-1 or int(y) == h-1:
@@ -225,13 +236,11 @@ def shuangxianxing():
 
 #旋转45
 def xuanzhuan():
+    angle = 45
     lim = im.convert('L')
-    nim = im.rotate(45)
+    nim = im.rotate(angle)
     show_image(nim)
     hist_show(lim)
-
-
-
 
 #傅立叶变换
 def FFT(image, flag = 0):
@@ -299,7 +308,7 @@ def ruihua():
 def main():
     root = Tk()
     root.title('Image')
-    root.geometry("1350x680+0+0")
+    root.geometry("1050x680+150+0")
     
     global im_label1
     global im_label2
@@ -307,16 +316,16 @@ def main():
     global hist_label2
     emp_img = ImageTk.PhotoImage(Image.new('L',(1,1)))
     im_label1 = Label(root, image = emp_img, width = 512, height = 512, justify = 'left')
-    im_label1.grid(row = 0, column = 0)
+    im_label1.grid(row = 1, column = 0)
     im_label2 = Label(root, image = emp_img, width = 512, height = 512, justify = 'right')
-    im_label2.grid(row = 0, column = 1)
+    im_label2.grid(row = 1, column = 1)
 
     #creat a histogram picture
     hist_img = ImageTk.PhotoImage(Image.new('L',(1,1)))
     hist_label1 = Label(root, image = hist_img, width = 512, height = 150)
-    hist_label1.grid(row = 1,column = 0)
+    hist_label1.grid(row = 2,column = 0)
     hist_label2 = Label(root, image = hist_img, width = 512, height = 150)
-    hist_label2.grid(row = 1,column = 1)
+    hist_label2.grid(row = 2,column = 1)
 
     global value_caiyang 
     global value_lianghua
@@ -328,23 +337,22 @@ def main():
            from_ = 0,
            to = 4,
            orient = HORIZONTAL,
-           variable = value_caiyang).grid(row = 0, column = 2)
+           variable = value_caiyang).grid(row = 0, column = 0)
     Scale(root,
            from_ = 0,
            to = 7,
            orient = HORIZONTAL,
-           variable = value_lianghua).grid(row = 0,column = 3)
+           variable = value_lianghua).grid(row = 0,column = 1)
 
-    btn1 = Button(text=u'采样和量化', command = cl_process)
-    btn1.grid(row = 2, column = 3)
     menubar = Menu(root)
 
     filemenu = Menu(menubar, tearoff = 0)
     filemenu.add_command(label = 'Open', command = lambda:load_image())
-##    filemenu.add_command(label = 'Save', command = lambda:save())
+    filemenu.add_command(label = 'Save', command = lambda:save())
     menubar.add_cascade(label= 'File', menu = filemenu)
     
     menu1 = Menu(menubar, tearoff = 0)
+    menu1.add_command(label ='采样和量化', command = lambda:cl_process())
     menu1.add_command(label = '均衡化', command = lambda:junhenghua())
     menu1.add_command(label = '线性增强', command = lambda:xianxing1())
     menu1.add_command(label = '线性减弱', command = lambda:xianxing2())

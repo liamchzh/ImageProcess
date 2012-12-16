@@ -327,14 +327,13 @@ def canny():
     Img1 = cv.LoadImage(name,0)
     PCannyImg = cv.CreateImage(cv.GetSize(Img1), cv.IPL_DEPTH_8U, 1)
     cv.Canny(Img1, PCannyImg, 50, 150, 3)
-    show_image(ImageTk.PhotoImage(PCannyImg))
+    #show_image(ImageTk.PhotoImage(PCannyImg))
     cv.NamedWindow("canny", 1)
     cv.ShowImage("canny", PCannyImg)
     cv.WaitKey(0)
     cv.DestroyWindow("canny")
     
 def xihua():
-
     def VThin(image,array):
         h = image.height
         w = image.width
@@ -420,6 +419,18 @@ def xihua():
     iThin = Xihua(iTwo,array)
     cv.ShowImage('iThin',iThin)
     cv.WaitKey(0)
+
+#24位真彩色转灰度图像
+def convert1():
+    w,h = im.size
+    nim = Image.new('L', im.size)
+    pix = im.load()
+    npix = nim.load()
+    for i in range(w):
+        for j in range(h):
+            npix[i,j] = pix[i, j][0] * 0.299 + pix[i, j][1] * 0.587+ pix[i, j][2] * 0.114
+    show_image(nim)
+    hist_show(nim)
     
 def main():
     root = Tk()
@@ -499,6 +510,9 @@ def main():
     menubar.add_cascade(label = '图像分割', menu = menu5)
     root.config(menu = menubar) 
 
+    menu6 = Menu(menubar, tearoff = 0)
+    menu6.add_command(label = '24位转灰度', command = lambda:convert1())
+    menubar.add_cascade(label = '灰度化', menu = menu6)
 
     root.mainloop()
 

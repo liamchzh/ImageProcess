@@ -154,42 +154,20 @@ def junhenghua():
 #线性增强
 def xianxing1():
     multiple = 1.2
-    w,h = im.size
-    nim = Image.new('L', im.size)
-    lim = im.convert('L')
-    lpix = lim.load()
-    npix = nim.load()
-    for i in range(w):
-        for j in range(h):
-            npix[i, j] = lpix[i, j] * multiple
+    nim = im.point(lambda i: i * multiple)
     show_image(nim)
     hist_show(nim)
 
 #线性减弱
 def xianxing2():
     multiple = 0.8
-    w,h = im.size
-    nim = Image.new('L', im.size)
-    lim = im.convert('L')
-    lpix = lim.load()
-    npix = nim.load()
-    for i in range(w):
-        for j in range(h):
-            npix[i, j] = lpix[i, j] *  multiple
+    nim = im.point(lambda i: i * multiple)
     show_image(nim)
     hist_show(nim)
 
 #非线性变换
 def feixianxing():
-    w,h = im.size
-    nim = Image.new('L', im.size)
-    lim = im.convert('L')
-    lpix = lim.load()
-    npix = nim.load()
-    for i in range(w):
-        for j in range(h):
-            x = lpix[i, j]
-            npix[i, j] = x + x * 0.8 *(255 - x) / 255
+    nim = im.point(lambda i: (i + i * 0.8 *(255 - i) / 255))
     show_image(nim)
     hist_show(nim)
 
@@ -329,7 +307,7 @@ def canny():
     cv.Canny(Img1, PCannyImg, 50, 150, 3)
     #show_image(ImageTk.PhotoImage(PCannyImg))
     cv.NamedWindow("canny", 1)
-    cv.ShowImage("canny", PCannyImg)
+    cv.ShowImage("Canny", PCannyImg)
     cv.WaitKey(0)
     cv.DestroyWindow("canny")
     
@@ -417,7 +395,7 @@ def xihua():
     image = cv.LoadImage(name,0)
     iTwo = Two(image)
     iThin = Xihua(iTwo,array)
-    cv.ShowImage('iThin',iThin)
+    cv.ShowImage(u'细化',iThin)
     cv.WaitKey(0)
 
 #24位真彩色转灰度图像

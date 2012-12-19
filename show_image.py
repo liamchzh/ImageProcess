@@ -283,6 +283,50 @@ def ruihua():
     show_image(imgfilted)
     hist_show(imgfilted)
 
+#哈夫曼压缩
+import heapq
+def huffman():
+    lim = im.convert('L')
+    lpix = lim.load()
+    count = [0 for i in range(256)]
+    w,h = lim.size
+    Sum = w * h
+    for i in range(w):
+        for j in range(h):
+            count[lpix[i,j]] += 1
+    count = map(lambda x: float(x)/float(Sum), count)
+    data = []
+    for i in range(0,256):
+        data.append((count[i],str(i)))
+    huffTree = makeHuffTree(data)
+    print_buffer = list()
+    encodeHuffTree(huffTree,print_buffer)
+    printCode(print_buffer)
+    
+
+def makeHuffTree(symbolTupleList):
+    trees = list(symbolTupleList)
+    heapq.heapify(trees)
+    while len(trees) > 1:  #每次合并减少一个可合并节点
+        childR, childL = heapq.heappop(trees), heapq.heappop(trees) #弹出最小两个节点
+        parent = (childL[0] + childR[0], childL, childR) #合并节点
+        heapq.heappush(trees, parent)    #推回新节点
+    return trees[0]
+
+def encodeHuffTree(huffTree, print_buffer,prefix = ''):
+    if len(huffTree) == 2:
+        print_buffer.append((huffTree[1],prefix))  #加入缓冲
+    else:
+        encodeHuffTree(huffTree[1], print_buffer,prefix + '0') #左子树
+        encodeHuffTree(huffTree[2], print_buffer,prefix + '1') #右子树
+
+def printCode(pbuffer):
+    pbuffer.sort();
+    for node in pbuffer:
+        print node[0]+'\t'+node[1]
+    
+
+
 #基于拉普拉斯算子的边缘检测
 def bianyuan():
     w,h = im.size
@@ -376,26 +420,26 @@ def xihua():
 
     
     array = [0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
-    1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
-             0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
-    1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
-    1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,\
-             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
-    1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,\
-             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
-             0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
-    1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
-             0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
-    1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,\
-    1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,\
-    1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,\
-    1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,0,\
-    1,1,0,0,1,1,1,0,1,1,0,0,1,0,0,0]
+            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
+            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
+            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
+            1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,\
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
+            1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,\
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
+            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
+            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,1,\
+            0,0,1,1,0,0,1,1,1,1,0,1,1,1,0,1,\
+            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,\
+            1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,\
+            1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,\
+            1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,0,\
+            1,1,0,0,1,1,1,0,1,1,0,0,1,0,0,0]
 
     image = cv.LoadImage(name,0)
     iTwo = Two(image)
     iThin = Xihua(iTwo,array)
-    cv.ShowImage(u'细化',iThin)
+    cv.ShowImage('xihua',iThin)
     cv.WaitKey(0)
 
 #24位真彩色转灰度图像
@@ -480,6 +524,10 @@ def main():
     menu4.add_command(label = '平滑2', command = lambda:pinghua2())
     menu4.add_command(label = '锐化', command = lambda:ruihua())
     menubar.add_cascade(label = '图像增强', menu = menu4)
+
+    menu7 = Menu(menubar, tearoff = 0)
+    menu7.add_command(label = '哈夫曼', command = lambda:huffman())
+    menubar.add_cascade(label = '压缩', menu = menu7)
 
     menu5 = Menu(menubar, tearoff = 0)
     menu5.add_command(label = '边缘检测(La)', command = lambda:bianyuan())

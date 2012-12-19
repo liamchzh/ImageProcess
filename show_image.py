@@ -62,6 +62,7 @@ def hist_process(im):
     for i in range(256):
         hist.append(0)
     w,h = im.size
+    pix_sum = w * h
     im = im.convert('L')
     matrix = im.load()
     for i in range(w):
@@ -76,6 +77,27 @@ def hist_process(im):
             hist_matrix[i*2, j] = 255
             hist_matrix[i*2+1, j] = 255
     img = ImageTk.PhotoImage(hist_img)
+    #像素总数
+    print u'像素总数' + str(pix_sum)
+
+    #平均灰度
+    Sum = 0
+    for i in range(0,256):
+        Sum = Sum + i * hist[i]
+    av = Sum / pix_sum
+    print u'平均灰度：' + str(av)
+
+    #中值灰度
+    mSum = 0
+    mid = pix_sum / 2
+    for i in range(0,256):
+        mSum = mSum + hist[i]
+        if mSum > mid:
+            print u'中值灰度：' + str(i)
+            break
+        else:
+            pass
+
     return img
 
 #显示直方图            

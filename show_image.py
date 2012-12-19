@@ -7,15 +7,15 @@ import cv, cv2
 import numpy as np 
 import ImageFilter
 
-hist_height = 150
+
 
 def load_image(): 
     global im
     global name
     global save_im
-    name = tkFileDialog.askopenfilename(initialdir = 'E:/Python')
+    name = tkFileDialog.askopenfilename(initialdir = 'E:/Python') # 调用Win API 获得选择文件名称
     if name != '':
-        if is_image(name):
+        if is_image(name): # 判断图片格式
             im = Image.open(name)
             show_pri_image(im)
             pri_hist_show(im)
@@ -27,28 +27,29 @@ def load_image():
     
 def is_image(filename):
     im = Image.open(filename)
-    if im.format == 'JPEG' or im.format == 'BMP' or im.fortmat == 'GIF' or im.format == 'TIFF':
+    if im.format == 'JPEG' or im.format == 'TIFF':
         return 1
     else:
         return 0
 
+# 保存图像
 def save():
     global save_im
     save_im.save('test.jpg', 'JPEG', quality=100)
 
-#显示原图
+# 显示原图
 def show_pri_image(im):
     img = ImageTk.PhotoImage(im)
     im_label1.configure(image = img)
     im_label1.image = img
 
-#原图直方图
+# 原图直方图
 def pri_hist_show(im):
     img = hist_process(im)
     hist_label1.configure(image = img)
     hist_label1.image = img
 
-#显示处理后的图像
+# 显示处理后的图像
 def show_image(im):
     global save_im
     save_im = im
@@ -56,16 +57,23 @@ def show_image(im):
     im_label2.configure(image = img)
     im_label2.image = img
 
-#生成直方图
+# 显示直方图            
+def hist_show(im):
+    img = hist_process(im)
+    hist_label2.configure(image = img)
+    hist_label2.image = img
+
+# 生成直方图
+hist_height = 150
 def hist_process(im):
     hist = []
     for i in range(256):
         hist.append(0)
     w,h = im.size
     pix_sum = w * h
-    im = im.convert('L')
-    matrix = im.load()
-    for i in range(w):
+    lim = im.convert('L')
+    matrix = lim.load()
+    for i in range(w): #计算每个灰度的像素个数
         for j in range(h):
             hist[matrix[i,j]] += 1
     maxi = max(hist)
@@ -77,17 +85,21 @@ def hist_process(im):
             hist_matrix[i*2, j] = 255
             hist_matrix[i*2+1, j] = 255
     img = ImageTk.PhotoImage(hist_img)
-    #像素总数
+    return img
+    
+    """
+    # 显示直方图信息
+    # 像素总数
     print u'像素总数' + str(pix_sum)
 
-    #平均灰度
+    # 平均灰度
     Sum = 0
     for i in range(0,256):
         Sum = Sum + i * hist[i]
     av = Sum / pix_sum
     print u'平均灰度：' + str(av)
 
-    #中值灰度
+    # 中值灰度
     mSum = 0
     mid = pix_sum / 2
     for i in range(0,256):
@@ -97,16 +109,9 @@ def hist_process(im):
             break
         else:
             pass
-
-    return img
-
-#显示直方图            
-def hist_show(im):
-    img = hist_process(im)
-    hist_label2.configure(image = img)
-    hist_label2.image = img
-
-#采样和量化处理
+    """
+    
+# 采样和量化处理
 def cl_process():
     try:
         w,h = im.size
@@ -129,7 +134,7 @@ def cl_process():
     except:
          box.showerror("ERROR", "Something go wrong!")
 
-#均衡化处理
+# 均衡化处理
 def junhenghua():
     w,h = im.size
     pix_sum = w * h
@@ -173,27 +178,27 @@ def junhenghua():
     show_image(nim)
     hist_show(nim)
 
-#线性增强
+# 图像线性增强
 def xianxing1():
     multiple = 1.2
     nim = im.point(lambda i: i * multiple)
     show_image(nim)
     hist_show(nim)
 
-#线性减弱
+# 图像线性减弱
 def xianxing2():
     multiple = 0.8
     nim = im.point(lambda i: i * multiple)
     show_image(nim)
     hist_show(nim)
 
-#非线性变换
+# 图像非线性变换
 def feixianxing():
     nim = im.point(lambda i: (i + i * 0.8 *(255 - i) / 255))
     show_image(nim)
     hist_show(nim)
 
-#最临近插值法放大1.5倍
+# 最临近插值法放大1.5倍
 def linjinchazhi():
     multiple = 1.5
     w,h = im.size
@@ -211,7 +216,7 @@ def linjinchazhi():
     show_image(nim)
     hist_show(nim)
 
-#双线性插值法放大1.5倍
+# 双线性插值法放大1.5倍
 def shuangxianxing():
     multiple = 1.5
     w,h = im.size
@@ -234,15 +239,14 @@ def shuangxianxing():
     show_image(nim)
     hist_show(nim)
 
-#旋转45
+# 旋转45
 def xuanzhuan():
     angle = 45
-    lim = im.convert('L')
     nim = im.rotate(angle)
     show_image(nim)
-    hist_show(lim)
+    hist_show(im)
 
-#傅立叶变换
+# 傅立叶变换
 def FFT(image, flag = 0):
     w = image.width
     h = image.height
@@ -276,7 +280,7 @@ def fuliye():
     iAfter = FImage(mAfterFFT)
     cv.ShowImage('傅立叶变换',iAfter)
 
-#离散余弦变换
+# 离散余弦变换
 def lisanyuxian():
     img1 = cv2.imread(name, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     h, w = img1.shape[:2]
@@ -287,27 +291,31 @@ def lisanyuxian():
     cv.CvtColor(cv.fromarray(vis1), img2, cv.CV_GRAY2BGR)
     cv.ShowImage('离散余弦变换', img2)
 
-#平滑
+# 平滑
 def pinghua1():
     imgfilted = im.filter(ImageFilter.SMOOTH);
     show_image(imgfilted)
     hist_show(imgfilted)
 
-#平滑（加强）
+# 平滑（加强）
 def pinghua2():
     imgfilted = im.filter(ImageFilter.SMOOTH_MORE);
     show_image(imgfilted)
     hist_show(imgfilted)
 
-#锐化
+# 锐化
 def ruihua():
     imgfilted = im.filter(ImageFilter.SHARPEN);
     show_image(imgfilted)
     hist_show(imgfilted)
 
-#哈夫曼压缩
+# 哈夫曼压缩
 import heapq
 def huffman():
+    """
+    计算每种灰度的像素点的个数和概率存到data中
+    data = [(0.01,'0'),(0.02,'1').....(0.005,'255')]
+    """
     lim = im.convert('L')
     lpix = lim.load()
     count = [0 for i in range(256)]
@@ -348,8 +356,7 @@ def printCode(pbuffer):
         print node[0]+'\t'+node[1]
     
 
-
-#基于拉普拉斯算子的边缘检测
+# 基于拉普拉斯算子的边缘检测
 def bianyuan():
     w,h = im.size
     nim = Image.new('L',im.size)
@@ -371,7 +378,6 @@ def canny():
     Img1 = cv.LoadImage(name,0)
     PCannyImg = cv.CreateImage(cv.GetSize(Img1), cv.IPL_DEPTH_8U, 1)
     cv.Canny(Img1, PCannyImg, 50, 150, 3)
-    #show_image(ImageTk.PhotoImage(PCannyImg))
     cv.NamedWindow("canny", 1)
     cv.ShowImage("Canny", PCannyImg)
     cv.WaitKey(0)
@@ -464,7 +470,7 @@ def xihua():
     cv.ShowImage('xihua',iThin)
     cv.WaitKey(0)
 
-#24位真彩色转灰度图像
+# 24位真彩色转灰度图像
 def convert1():
     w,h = im.size
     nim = Image.new('L', im.size)
@@ -481,10 +487,10 @@ def main():
     root.title('Image')
     root.geometry("1050x680+150+0")
     
-    global im_label1
-    global im_label2
-    global hist_label1
-    global hist_label2
+    global im_label1 # 显示原图
+    global im_label2 # 显示处理后的图
+    global hist_label1 # 原图直方图
+    global hist_label2 # 处理后的直方图
     emp_img = ImageTk.PhotoImage(Image.new('L',(1,1)))
     im_label1 = Label(root, image = emp_img, width = 512, height = 512, justify = 'left')
     im_label1.grid(row = 1, column = 0)
@@ -498,12 +504,13 @@ def main():
     hist_label2 = Label(root, image = hist_img, width = 512, height = 150)
     hist_label2.grid(row = 2,column = 1)
 
-    global value_caiyang 
-    global value_lianghua
+    global value_caiyang # 采样
+    global value_lianghua # 量化
     
     value_caiyang = StringVar()
     value_lianghua = StringVar()
-  
+    
+    # 创建滑动条
     Scale(root,
            from_ = 0,
            to = 4,
@@ -514,7 +521,8 @@ def main():
            to = 7,
            orient = HORIZONTAL,
            variable = value_lianghua).grid(row = 0,column = 1)
-
+    
+    # 创建菜单
     menubar = Menu(root)
 
     filemenu = Menu(menubar, tearoff = 0)
@@ -548,7 +556,7 @@ def main():
     menubar.add_cascade(label = '图像增强', menu = menu4)
 
     menu7 = Menu(menubar, tearoff = 0)
-    menu7.add_command(label = '哈夫曼', command = lambda:huffman())
+    menu7.add_command(label = '哈夫曼编码', command = lambda:huffman())
     menubar.add_cascade(label = '压缩', menu = menu7)
 
     menu5 = Menu(menubar, tearoff = 0)
@@ -566,4 +574,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

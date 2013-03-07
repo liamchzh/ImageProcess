@@ -8,8 +8,6 @@ import cv, cv2
 import numpy as np 
 import ImageFilter
 
-
-
 def load_image(): 
     global im
     global name
@@ -90,24 +88,6 @@ def hist_process(im):
     # 显示直方图信息
     # 像素总数
     print u'像素总数' + str(pix_sum)
-
-    # 平均灰度
-    Sum = 0
-    for i in range(0,256):
-        Sum = Sum + i * hist[i]
-    av = Sum / pix_sum
-    print u'平均灰度：' + str(av)
-
-    # 中值灰度
-    mSum = 0
-    mid = pix_sum / 2
-    for i in range(0,256):
-        mSum = mSum + hist[i]
-        if mSum > mid:
-            print u'中值灰度：' + str(i)
-            break
-        else:
-            pass
     """
     
 # 采样和量化处理
@@ -141,9 +121,7 @@ def junhenghua():
     lim = im.convert('L')
     lpix = lim.load()
     npix = nim.load()
-    p = []
-    for i in range(256):
-        p.append(0)
+    p = [0 for i in range(256)]
     for i in range(w):
         for j in range(h):
             p[lpix[i,j]] += 1
@@ -165,9 +143,7 @@ def junhenghua():
             max = j + 1
             break
     
-    c = []
-    for i in range(256):
-        c.append(0)
+    c = [0 for i in range(256)]
     c[0] = p[0]
     for i in range(1,256):
         c[i] = p[i] + c[i-1]
